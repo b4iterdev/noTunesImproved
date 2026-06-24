@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+
+      - name: Build unsigned Release .app
+        run: |
+          xcodebuild \
+            -project noTunesImproved.xcodeproj \
+            -scheme noTunesImproved \
+            -configuration Release \
+            -derivedDataPath build \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            DEVELOPMENT_TEAM="" \
+            build
+
+      - name: Zip the .app bundle
+        run: |
+          cd build/Build/Products/Release
+          ditto -c -k --keepParent noTunesImproved.app noTunesImproved-macOS.zip
+
+      - name: Create GitHub Release and Upload
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: build/Build/Products/Release/noTunesImproved-macOS.zip

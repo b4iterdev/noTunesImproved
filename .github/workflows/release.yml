@@ -18,6 +18,11 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
 
+      - name: Extract version from tag
+        id: version
+        # Strips the leading "v" from the tag: v1.0.1 -> 1.0.1
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
       - name: Build unsigned Release .app
         run: |
           xcodebuild \
@@ -25,6 +30,8 @@ jobs:
             -scheme noTunesImproved \
             -configuration Release \
             -derivedDataPath build \
+            MARKETING_VERSION=${{ steps.version.outputs.VERSION }} \
+            CURRENT_PROJECT_VERSION=${{ github.run_number }} \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \

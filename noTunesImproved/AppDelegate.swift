@@ -30,6 +30,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         launchBlocker.start()
     }
 
+    // ponytail: relaunch path is the only way to unhide a hidden menubar icon
+    // (app is LSUIElement, so clicking it in Finder/Applications reopens the running instance)
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if preferences.hideStatusIcon {
+            preferences.hideStatusIcon = false
+        }
+        return false
+    }
+
     func applicationWillTerminate(_ notification: Notification) {
         launchBlocker?.stop()
         audioDeviceMonitor.stop()

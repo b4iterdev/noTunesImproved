@@ -1,11 +1,13 @@
 import AppKit
+import Combine
 
 final class StatusBarController: NSObject, NSMenuDelegate {
     private let preferences: AppPreferences
     private let configurationWindowController: ConfigurationWindowController
     private let loginItemController: LoginItemController
-    private let statusItem: NSStatusItem
+    private var statusItem: NSStatusItem?
     private var launchAtLoginMenuItem: NSMenuItem?
+    private var cancellables = Set<AnyCancellable>()
 
     init(
         preferences: AppPreferences,
@@ -15,16 +17,40 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         self.preferences = preferences
         self.configurationWindowController = configurationWindowController
         self.loginItemController = loginItemController
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         super.init()
-        configureButton()
-        statusItem.menu = makeMenu()
-        statusItem.menu?.delegate = self
+        if !preferences.hideStatusIcon {
+            showStatusItem()
+        }
+        preferences.$hideStatusIcon
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] hidden in
+                if hidden {
+                    self?.hideStatusItem()
+                } else {
+                    self?.showStatusItem()
+                }
+            }
+            .store(in: &cancellables)
     }
 
-    private func configureButton() {
-        guard let button = statusItem.button else { return }
-        button.image = NSImage(systemSymbolName: "headphones", accessibilityDescription: "noTunes Improved")
+    private func showStatusItem() {
+        guard statusItem == nil else { return }
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        configureButton(for: item)
+        item.menu = makeMenu()
+        item.menu?.delegate = self
+        statusItem = item
+    }
+
+    private func hideStatusItem() {
+        guard let item = statusItem else { return }
+        NSStatusBar.system.removeStatusItem(item)
+        statusItem = nil
+    }
+
+    private func configureButton(for item: NSStatusItem) {
+        guard let button = item.button else { return }
+        button.image = NSImage(systemSymbolName: "music.note", accessibilityDescription: "noTunes Improved")
         button.image?.isTemplate = true
         button.toolTip = "noTunes Improved"
     }
@@ -70,6 +96,14 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
         menu.addItem(.separator())
 
+        let hideItem = NSMenuItem(
+            title: "Hide from Menubar",
+            action: #selector(hideFromMenubar),
+            keyEquivalent: ""
+        )
+        hideItem.target = self
+        menu.addItem(hideItem)
+
         let quitItem = NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q")
         quitItem.target = self
         menu.addItem(quitItem)
@@ -106,12 +140,24 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         configurationWindowController.show()
     }
 
+    @objc private func hideFromMenubar() {
+        let alert = NSAlert()
+        alert.alertStyle = .informational
+        alert.messageText = "Hide from Menubar?"
+        alert.informativeText = "The menubar icon will be hidden. Launch the app again from Applications to show it."
+        alert.addButton(withTitle: "Hide")
+        alert.addButton(withTitle: "Cancel")
+        if alert.runModal() == .alertFirstButtonReturn {
+            preferences.hideStatusIcon = true
+        }
+    }
+
     @objc private func quit() {
         NSApp.terminate(nil)
     }
 
     private func rebuildMenuTitles() {
-        guard let menu = statusItem.menu else { return }
+        guard let menu = statusItem?.menu else { return }
         if menu.items.count >= 2 {
             menu.items[0].title = preferences.blockingEnabled ? "Disable Blocking" : "Enable Blocking"
             menu.items[1].title = "Mode: \(preferences.blockingMode.displayName)"

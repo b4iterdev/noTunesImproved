@@ -1,0 +1,8 @@
+# OpenCode
+.omo/
+
+# Editor tooling
+opencode.json
+
+# Xcode
+noTunesImproved.xcodeproj/xcuserdata/

@@ -50,17 +50,6 @@ Build and run in Xcode (Cmd+R). Requires Xcode 16+ and macOS 12.4+.
 
 macOS exposes no public API to determine the *cause* of an app launch, so this timing + input-activity heuristic is the most reliable approach that works without private APIs or special permissions.
 
-## Releasing
-
-Releases are built automatically via GitHub Actions. To publish a new release:
-
-```bash
-git tag v1.0.0
-git push --tags
-```
-
-This triggers the [release workflow](.github/workflows/release.yml), which builds an unsigned `.app` and publishes it to GitHub Releases.
-
 ## License
 
-MIT (pending)
+MIT License 

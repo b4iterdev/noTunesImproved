@@ -1,20 +1,25 @@
 import AppKit
 
-final class StatusBarController: NSObject {
+final class StatusBarController: NSObject, NSMenuDelegate {
     private let preferences: AppPreferences
     private let configurationWindowController: ConfigurationWindowController
+    private let loginItemController: LoginItemController
     private let statusItem: NSStatusItem
+    private var launchAtLoginMenuItem: NSMenuItem?
 
     init(
         preferences: AppPreferences,
-        configurationWindowController: ConfigurationWindowController
+        configurationWindowController: ConfigurationWindowController,
+        loginItemController: LoginItemController
     ) {
         self.preferences = preferences
         self.configurationWindowController = configurationWindowController
+        self.loginItemController = loginItemController
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         super.init()
         configureButton()
-        rebuildMenu()
+        statusItem.menu = makeMenu()
+        statusItem.menu?.delegate = self
     }
 
     private func configureButton() {
@@ -24,7 +29,7 @@ final class StatusBarController: NSObject {
         button.toolTip = "noTunes Improved"
     }
 
-    private func rebuildMenu() {
+    private func makeMenu() -> NSMenu {
         let menu = NSMenu()
 
         let enabledItem = NSMenuItem(
@@ -45,6 +50,16 @@ final class StatusBarController: NSObject {
 
         menu.addItem(.separator())
 
+        let launchAtLoginItem = NSMenuItem(
+            title: "Launch at Login",
+            action: #selector(toggleLaunchAtLogin),
+            keyEquivalent: ""
+        )
+        launchAtLoginItem.target = self
+        launchAtLoginItem.state = loginItemController.isEnabled ? .on : .off
+        launchAtLoginMenuItem = launchAtLoginItem
+        menu.addItem(launchAtLoginItem)
+
         let configurationItem = NSMenuItem(
             title: "Configuration…",
             action: #selector(openConfiguration),
@@ -59,17 +74,32 @@ final class StatusBarController: NSObject {
         quitItem.target = self
         menu.addItem(quitItem)
 
-        statusItem.menu = menu
+        return menu
+    }
+
+    func menuNeedsUpdate(_ menu: NSMenu) {
+        launchAtLoginMenuItem?.state = loginItemController.isEnabled ? .on : .off
     }
 
     @objc private func toggleBlocking() {
         preferences.blockingEnabled.toggle()
-        rebuildMenu()
+        rebuildMenuTitles()
     }
 
     @objc private func toggleMode() {
         preferences.blockingMode = preferences.blockingMode == .always ? .headphoneTriggeredOnly : .always
-        rebuildMenu()
+        rebuildMenuTitles()
+    }
+
+    @objc private func toggleLaunchAtLogin() {
+        let newValue = !loginItemController.isEnabled
+        if !loginItemController.setEnabled(newValue) {
+            let alert = NSAlert()
+            alert.alertStyle = .warning
+            alert.messageText = "Could not \(newValue ? "enable" : "disable") Launch at Login"
+            alert.informativeText = "macOS requires Ventura (13.0) or later for this feature."
+            alert.runModal()
+        }
     }
 
     @objc private func openConfiguration() {
@@ -78,5 +108,13 @@ final class StatusBarController: NSObject {
 
     @objc private func quit() {
         NSApp.terminate(nil)
+    }
+
+    private func rebuildMenuTitles() {
+        guard let menu = statusItem.menu else { return }
+        if menu.items.count >= 2 {
+            menu.items[0].title = preferences.blockingEnabled ? "Disable Blocking" : "Enable Blocking"
+            menu.items[1].title = "Mode: \(preferences.blockingMode.displayName)"
+        }
     }
 }

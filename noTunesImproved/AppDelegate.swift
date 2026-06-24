@@ -3,6 +3,7 @@ import AppKit
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let preferences = AppPreferences()
     private let audioDeviceMonitor = AudioDeviceMonitor()
+    private let loginItemController = LoginItemController()
     private var configurationWindowController: ConfigurationWindowController?
     private var statusBarController: StatusBarController?
     private var launchBlocker: MusicLaunchBlocker?
@@ -17,7 +18,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         statusBarController = StatusBarController(
             preferences: preferences,
-            configurationWindowController: configurationWindowController
+            configurationWindowController: configurationWindowController,
+            loginItemController: loginItemController
         )
 
         let launchBlocker = MusicLaunchBlocker(

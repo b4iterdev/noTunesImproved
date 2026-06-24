@@ -46,6 +46,7 @@ final class MusicLaunchBlocker {
         let shouldSweep = classifier.shouldBlock(
             blockingEnabled: preferences.blockingEnabled,
             blockingMode: preferences.blockingMode,
+            manualLaunchIdleThreshold: preferences.manualLaunchIdleThreshold,
             lastHeadphoneActivationDate: audioDeviceMonitor.lastHeadphoneActivationDate
         )
 
@@ -74,6 +75,7 @@ final class MusicLaunchBlocker {
         let shouldBlock = classifier.shouldBlock(
             blockingEnabled: preferences.blockingEnabled,
             blockingMode: preferences.blockingMode,
+            manualLaunchIdleThreshold: preferences.manualLaunchIdleThreshold,
             lastHeadphoneActivationDate: audioDeviceMonitor.lastHeadphoneActivationDate
         )
 

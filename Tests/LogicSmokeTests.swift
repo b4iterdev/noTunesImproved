@@ -29,6 +29,7 @@ struct LogicSmokeTests {
             autoLaunchClassifier.shouldBlock(
                 blockingEnabled: true,
                 blockingMode: .headphoneTriggeredOnly,
+                manualLaunchIdleThreshold: 1.0,
                 lastHeadphoneActivationDate: now.addingTimeInterval(-4),
                 launchDate: now
             ),
@@ -40,6 +41,7 @@ struct LogicSmokeTests {
             !manualLaunchClassifier.shouldBlock(
                 blockingEnabled: true,
                 blockingMode: .headphoneTriggeredOnly,
+                manualLaunchIdleThreshold: 1.0,
                 lastHeadphoneActivationDate: now.addingTimeInterval(-4),
                 launchDate: now
             ),
@@ -51,6 +53,7 @@ struct LogicSmokeTests {
             !autoLaunchClassifier.shouldBlock(
                 blockingEnabled: true,
                 blockingMode: .headphoneTriggeredOnly,
+                manualLaunchIdleThreshold: 1.0,
                 lastHeadphoneActivationDate: now.addingTimeInterval(-12),
                 launchDate: now
             ),
@@ -62,6 +65,7 @@ struct LogicSmokeTests {
             autoLaunchClassifier.shouldBlock(
                 blockingEnabled: true,
                 blockingMode: .always,
+                manualLaunchIdleThreshold: 1.0,
                 lastHeadphoneActivationDate: nil,
                 launchDate: now
             ),
@@ -77,6 +81,7 @@ struct LogicSmokeTests {
             unknownIdleClassifier.shouldBlock(
                 blockingEnabled: true,
                 blockingMode: .headphoneTriggeredOnly,
+                manualLaunchIdleThreshold: 1.0,
                 lastHeadphoneActivationDate: now.addingTimeInterval(-4),
                 launchDate: now
             ),
@@ -88,6 +93,7 @@ struct LogicSmokeTests {
             !autoLaunchClassifier.shouldBlock(
                 blockingEnabled: false,
                 blockingMode: .headphoneTriggeredOnly,
+                manualLaunchIdleThreshold: 1.0,
                 lastHeadphoneActivationDate: now.addingTimeInterval(-4),
                 launchDate: now
             ),
@@ -110,6 +116,11 @@ struct LogicSmokeTests {
         preferences.blockingMode = .always
         let reloadedPreferences = AppPreferences(defaults: defaults)
         check(reloadedPreferences.blockingMode == .always, "blocking mode should persist")
+
+        check(preferences.manualLaunchIdleThreshold == AppPreferences.defaultManualLaunchIdleThreshold, "manual launch threshold should default to 1.0")
+        preferences.manualLaunchIdleThreshold = 2.5
+        let reloadedPreferences2 = AppPreferences(defaults: defaults)
+        check(reloadedPreferences2.manualLaunchIdleThreshold == 2.5, "manual launch threshold should persist")
 
         print("PASS")
     }

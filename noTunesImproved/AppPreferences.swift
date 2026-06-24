@@ -23,6 +23,8 @@ final class AppPreferences: ObservableObject {
         "com.apple.iTunes"
     ]
 
+    static let defaultManualLaunchIdleThreshold: TimeInterval = 1.0
+
     private enum Key {
         static let blockingEnabled = "blockingEnabled"
         static let blockingMode = "blockingMode"
@@ -30,6 +32,7 @@ final class AppPreferences: ObservableObject {
         static let replacementEnabled = "replacementEnabled"
         static let replacementTarget = "replacementTarget"
         static let hideStatusIcon = "hideStatusIcon"
+        static let manualLaunchIdleThreshold = "manualLaunchIdleThreshold"
     }
 
     private let defaults: UserDefaults
@@ -59,6 +62,10 @@ final class AppPreferences: ObservableObject {
         didSet { save(hideStatusIcon, forKey: Key.hideStatusIcon) }
     }
 
+    @Published var manualLaunchIdleThreshold: TimeInterval {
+        didSet { save(manualLaunchIdleThreshold, forKey: Key.manualLaunchIdleThreshold) }
+    }
+
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         blockingEnabled = defaults.object(forKey: Key.blockingEnabled) as? Bool ?? true
@@ -67,6 +74,7 @@ final class AppPreferences: ObservableObject {
         replacementEnabled = defaults.object(forKey: Key.replacementEnabled) as? Bool ?? false
         replacementTarget = defaults.string(forKey: Key.replacementTarget) ?? ""
         hideStatusIcon = defaults.object(forKey: Key.hideStatusIcon) as? Bool ?? false
+        manualLaunchIdleThreshold = defaults.object(forKey: Key.manualLaunchIdleThreshold) as? TimeInterval ?? Self.defaultManualLaunchIdleThreshold
         isLoading = false
     }
 

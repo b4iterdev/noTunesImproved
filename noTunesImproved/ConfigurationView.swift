@@ -34,6 +34,40 @@ struct ConfigurationView: View {
                             )
                         }
                     }
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Text("Manual launch threshold")
+                                .font(.headline)
+                            Spacer()
+                            Button("Reset") {
+                                preferences.manualLaunchIdleThreshold = AppPreferences.defaultManualLaunchIdleThreshold
+                            }
+                            .buttonStyle(.borderless)
+                            .disabled(preferences.manualLaunchIdleThreshold == AppPreferences.defaultManualLaunchIdleThreshold)
+                        }
+
+                        HStack {
+                            Slider(value: $preferences.manualLaunchIdleThreshold, in: 0...5, step: 0.1) {
+                                Text("Manual launch threshold")
+                            } minimumValueLabel: {
+                                Text("0s").font(.caption).foregroundStyle(.secondary)
+                            } maximumValueLabel: {
+                                Text("5s").font(.caption).foregroundStyle(.secondary)
+                            }
+
+                            Text(String(format: "%.1fs", preferences.manualLaunchIdleThreshold))
+                                .monospacedDigit()
+                                .frame(width: 40, alignment: .trailing)
+                        }
+
+                        Text("If the user interacted with the system within this many seconds, a launch is treated as manual and allowed. Lower = more aggressive blocking; higher = more lenient toward slow manual launches.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .disabled(preferences.blockingMode != .headphoneTriggeredOnly)
+                    .opacity(preferences.blockingMode == .headphoneTriggeredOnly ? 1 : 0.5)
                 }
 
                 Section("Replacement") {

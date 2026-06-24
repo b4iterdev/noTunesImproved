@@ -58,6 +58,11 @@ Build and run in Xcode (Cmd+R). Requires Xcode 16+ and macOS 12.4+.
 
 macOS exposes no public API to determine the *cause* of an app launch, so this timing + input-activity heuristic is the most reliable approach that works without private APIs or special permissions.
 
+## Disclaimer 
+
+Although this project are inspired by noTunes, this project is **NOT** a fork and does not uses any parts of its source code in any way.
+This project has also been build with the help of AI Agents and its code has been validated by human before pushed into production.
+
 ## License
 
 MIT License 

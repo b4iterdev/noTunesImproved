@@ -1,6 +1,14 @@
-# noTunes Improved
+<p align="center">
+  <img src="docs/icon.png" width="128" height="128" alt="noTunes Improved">
+</p>
 
-A macOS menu bar app that blocks Apple Music (and iTunes) from auto-launching — especially when you connect headphones or AirPods. Unlike a blunt "kill on launch" approach, it combines audio-device monitoring with user-input activity to distinguish a system auto-launch from a manual launch.
+<h1 align="center">noTunes Improved</h1>
+
+<p align="center">A macOS menu bar app that blocks Apple Music (and iTunes) from auto-launching — especially when you connect headphones or AirPods.</p>
+
+---
+
+
 
 ## Features
 

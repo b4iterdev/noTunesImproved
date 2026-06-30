@@ -9,6 +9,12 @@ final class ConfigurationWindowController {
         self.preferences = preferences
     }
 
+    deinit {
+        if let window {
+            NotificationCenter.default.removeObserver(self, name: NSWindow.willCloseNotification, object: window)
+        }
+    }
+
     func show() {
         let window = existingOrNewWindow()
         window.center()
@@ -28,7 +34,15 @@ final class ConfigurationWindowController {
         window.setContentSize(NSSize(width: 600, height: 540))
         window.minSize = NSSize(width: 560, height: 500)
         window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
-        window.isReleasedWhenClosed = false
+
+        NotificationCenter.default.addObserver(
+            forName: NSWindow.willCloseNotification,
+            object: window,
+            queue: .main
+        ) { [weak self] _ in
+            self?.window = nil
+        }
+
         self.window = window
         return window
     }
